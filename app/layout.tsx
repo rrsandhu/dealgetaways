@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getAllCities } from "@/lib/supabase/queries";
@@ -51,16 +52,18 @@ export default async function RootLayout({
   try {
     cities = await getAllCities();
   } catch {
-    // Supabase not configured yet — use empty list
+    // Supabase not configured yet
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-gray-50`}>
-        <Navbar cities={cities} />
-        <main className="min-h-[calc(100vh-64px)]">{children}</main>
-        <Footer cities={cities} />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${inter.className} min-h-screen bg-gray-50`}>
+          <Navbar cities={cities} />
+          <main className="min-h-[calc(100vh-64px)]">{children}</main>
+          <Footer cities={cities} />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { MapPin, Zap, Clock, Crown, Menu, X, ChevronDown } from "lucide-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { DbCity } from "@/types";
@@ -131,15 +132,23 @@ export function Navbar({ cities = [] }: NavbarProps) {
             </Link>
           </nav>
 
-          {/* Auth — placeholder until Clerk keys added */}
+          {/* Auth */}
           <div className="flex items-center gap-3">
             <div className="hidden items-center gap-2 sm:flex">
-              <Link href="/sign-in">
-                <Button variant="ghost" size="sm">Sign In</Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button size="sm">Get Started</Button>
-              </Link>
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button variant="ghost" size="sm">Sign In</Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button size="sm">Get Started</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <Link href="/dashboard">
+                  <Button variant="ghost" size="sm">Dashboard</Button>
+                </Link>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
             </div>
 
             <button
@@ -174,12 +183,19 @@ export function Navbar({ cities = [] }: NavbarProps) {
               </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-gray-100 pt-2">
-              <Link href="/sign-in">
-                <Button variant="outline" className="w-full">Sign In</Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button className="w-full">Get Started Free</Button>
-              </Link>
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button variant="outline" className="w-full">Sign In</Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button className="w-full">Get Started Free</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <Link href="/dashboard">
+                  <Button variant="outline" className="w-full">Dashboard</Button>
+                </Link>
+              </SignedIn>
             </div>
           </nav>
         </div>

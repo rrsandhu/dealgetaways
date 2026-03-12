@@ -1,37 +1,42 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import {
   Crown,
   Bell,
   BookmarkCheck,
   MapPin,
   CreditCard,
-  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  getUserByClerkId,
   getUserSubscriptions,
   getAllCities,
 } from "@/lib/supabase/queries";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-};
+export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  // Auth disabled — replace with Clerk when keys are available
-  const clerkUser: { firstName?: string | null } = {};
-  const dbUser = null;
-  const subscriptions: Awaited<ReturnType<typeof getUserSubscriptions>> = [];
-  const cities: Awaited<ReturnType<typeof getAllCities>> = [];
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  const [clerkUser, dbUser] = await Promise.all([
+    currentUser(),
+    getUserByClerkId(userId),
+  ]);
+
+  const [subscriptions, cities] = await Promise.all([
+    dbUser ? getUserSubscriptions(dbUser.id) : Promise.resolve([]),
+    getAllCities().catch(() => []),
+  ]);
 
   const subscribedCities = cities.filter((c) =>
     subscriptions.some((s) => s.city_id === c.id)
   );
-  const activeSubscriptions = subscriptions.filter(
-    (s) => s.status === "active"
-  );
+  const activeSubscriptions = subscriptions.filter((s) => s.status === "active");
   const isPremium = activeSubscriptions.length > 0;
 
   return (
@@ -57,36 +62,16 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* No DB user warning */}
-        {!dbUser && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-            <AlertCircle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-amber-900">
-                Account setup incomplete
-              </p>
-              <p className="text-sm text-amber-700">
-                Your Supabase database isn&apos;t connected yet. Connect Supabase
-                to enable subscriptions and alerts.
-              </p>
-            </div>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Subscriptions card */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Crown className="h-5 w-5 text-blue-700" />
-                <h2 className="font-semibold text-gray-900">
-                  City Subscriptions
-                </h2>
+                <h2 className="font-semibold text-gray-900">City Subscriptions</h2>
               </div>
               <Link href="/premium">
-                <Button size="sm" variant="outline">
-                  Add city
-                </Button>
+                <Button size="sm" variant="outline">Add city</Button>
               </Link>
             </div>
 
@@ -99,13 +84,9 @@ export default async function DashboardPage() {
                   >
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-900">
-                        {city.name}
-                      </span>
+                      <span className="text-sm font-medium text-gray-900">{city.name}</span>
                     </div>
-                    <Badge className="bg-green-100 text-green-700 border-green-200">
-                      Active
-                    </Badge>
+                    <Badge className="bg-green-100 text-green-700 border-green-200">Active</Badge>
                   </li>
                 ))}
               </ul>
@@ -130,35 +111,27 @@ export default async function DashboardPage() {
                 <h2 className="font-semibold text-gray-900">Deal Alerts</h2>
               </div>
               <Link href="/alerts">
-                <Button size="sm" variant="outline">
-                  Manage
-                </Button>
+                <Button size="sm" variant="outline">Manage</Button>
               </Link>
             </div>
-
-            {isPremium ? (
-              <div className="text-center py-6">
-                <Bell className="mx-auto h-8 w-8 text-gray-300 mb-2" />
-                <p className="text-sm text-gray-500">No alerts set up yet</p>
-                <Link href="/alerts" className="mt-3 block">
-                  <Button size="sm" variant="outline">
-                    Create alert
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <Bell className="mx-auto h-8 w-8 text-gray-300 mb-2" />
-                <p className="text-sm text-gray-500">
-                  Alerts require Premium
-                </p>
-                <Link href="/premium" className="mt-3 block">
-                  <Button size="sm" className="bg-blue-700 hover:bg-blue-800">
-                    Upgrade
-                  </Button>
-                </Link>
-              </div>
-            )}
+            <div className="text-center py-6">
+              <Bell className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+              {isPremium ? (
+                <>
+                  <p className="text-sm text-gray-500">No alerts set up yet</p>
+                  <Link href="/alerts" className="mt-3 block">
+                    <Button size="sm" variant="outline">Create alert</Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-500">Alerts require Premium</p>
+                  <Link href="/premium" className="mt-3 block">
+                    <Button size="sm" className="bg-blue-700 hover:bg-blue-800">Upgrade</Button>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Saved searches card */}
@@ -169,18 +142,14 @@ export default async function DashboardPage() {
                 <h2 className="font-semibold text-gray-900">Saved Searches</h2>
               </div>
               <Link href="/saved-searches">
-                <Button size="sm" variant="outline">
-                  View all
-                </Button>
+                <Button size="sm" variant="outline">View all</Button>
               </Link>
             </div>
             <div className="text-center py-6">
               <BookmarkCheck className="mx-auto h-8 w-8 text-gray-300 mb-2" />
               <p className="text-sm text-gray-500">No saved searches</p>
               <Link href="/search" className="mt-3 block">
-                <Button size="sm" variant="outline">
-                  Browse deals
-                </Button>
+                <Button size="sm" variant="outline">Browse deals</Button>
               </Link>
             </div>
           </div>
@@ -191,7 +160,6 @@ export default async function DashboardPage() {
               <CreditCard className="h-5 w-5 text-blue-700" />
               <h2 className="font-semibold text-gray-900">Billing</h2>
             </div>
-
             {isPremium ? (
               <div>
                 <p className="text-sm text-gray-600">
@@ -206,9 +174,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-sm text-gray-500 mb-3">
-                  No active subscriptions
-                </p>
+                <p className="text-sm text-gray-500 mb-3">No active subscriptions</p>
                 <Link href="/premium">
                   <Button className="w-full bg-blue-700 hover:bg-blue-800">
                     <Crown className="h-4 w-4" />
