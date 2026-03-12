@@ -18,7 +18,7 @@ import Link from "next/link";
 const FREE_DEAL_LIMIT = 3;
 
 interface PageProps {
-  params: { citySlug: string };
+  params: Promise<{ citySlug: string }>;
 }
 
 // ─── Static generation ────────────────────────────────────────────────────────
@@ -37,7 +37,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const city = await getCityBySlug(params.citySlug).catch(() => null);
+  const { citySlug } = await params;
+  const city = await getCityBySlug(citySlug).catch(() => null);
   if (!city) return { title: "City Not Found" };
 
   const title = `${city.name} Hotel Deals — Best Prices Today`;
@@ -62,8 +63,8 @@ export async function generateMetadata({
 
 export default async function CityDealsPage({ params }: PageProps) {
   const userId: string | null = null; // Auth disabled — re-enable with Clerk
-
-  const city = await getCityBySlug(params.citySlug).catch(() => null);
+  const { citySlug } = await params;
+  const city = await getCityBySlug(citySlug).catch(() => null);
   if (!city) notFound();
 
   const allDeals = await getDealsByCity(city.id, 60).catch(() => []);
@@ -74,7 +75,7 @@ export default async function CityDealsPage({ params }: PageProps) {
     const dbUser = await getUserByClerkId(userId).catch(() => null);
     if (dbUser) {
       const subscribedCities = await getSubscribedCityIds(dbUser.id).catch(
-        () => []
+        () => [] as string[]
       );
       hasAccess = subscribedCities.includes(city.id);
     }

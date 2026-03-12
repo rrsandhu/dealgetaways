@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Read UTM cookie
-  const utmCookie = cookies().get("_chd_utm")?.value;
+  const utmCookie = (await cookies()).get("_chd_utm")?.value;
   let utmSource = "direct";
   if (utmCookie) {
     try {
@@ -23,10 +23,10 @@ export async function POST(req: NextRequest) {
   try {
     // Add to newsletter list via Resend (or store in Supabase)
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL ?? "deals@canadahoteldeals.ca",
+      from: process.env.RESEND_FROM_EMAIL ?? "deals@dealgetaways.com",
       to: email,
-      subject: "Welcome to Canada Hotel Deals newsletter 🍁",
-      text: `Thanks for subscribing! You'll get the best Canadian hotel deals weekly.\n\nVisit: ${process.env.NEXT_PUBLIC_APP_URL}\n\n— Canada Hotel Deals`,
+      subject: "Welcome to DealGetaways newsletter 🍁",
+      text: `Thanks for subscribing! You'll get the best Canadian hotel deals weekly.\n\nVisit: ${process.env.NEXT_PUBLIC_APP_URL}\n\n— DealGetaways`,
     });
   } catch (err) {
     console.error("Newsletter signup error:", err);

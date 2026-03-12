@@ -22,11 +22,12 @@ import { formatCurrency, formatDate, isExpiringSoon, cn } from "@/lib/utils";
 import { buildBookingUrl } from "@/lib/utm";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const hotel = await getHotelById(params.id).catch(() => null);
+  const { id } = await params;
+  const hotel = await getHotelById(id).catch(() => null);
   if (!hotel) return { title: "Hotel Not Found" };
 
   return {
@@ -38,10 +39,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function HotelDetailPage({ params }: PageProps) {
+  const { id } = await params;
   const [hotel, deals, priceHistory] = await Promise.all([
-    getHotelById(params.id).catch(() => null),
-    getDealsByHotel(params.id).catch(() => []),
-    getPriceHistory(params.id).catch(() => []),
+    getHotelById(id).catch(() => null),
+    getDealsByHotel(id).catch(() => []),
+    getPriceHistory(id).catch(() => []),
   ]);
 
   if (!hotel) notFound();

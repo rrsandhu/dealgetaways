@@ -31,7 +31,7 @@ const CITY_IMAGES: Record<string, string> = {
 export default async function CitiesPage() {
   const [cities, dealCounts] = await Promise.all([
     getAllCities().catch(() => []),
-    getCityDealCounts().catch(() => ({})),
+    getCityDealCounts().catch(() => ({} as Record<string, number>)),
   ]);
 
   const citiesWithCounts = cities.map((city) => ({

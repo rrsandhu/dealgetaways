@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   // Auth disabled — replace with Clerk when keys are available
-  const clerkUser: { firstName?: string | null } | null = null;
+  const clerkUser: { firstName?: string | null } = {};
   const dbUser = null;
   const subscriptions: Awaited<ReturnType<typeof getUserSubscriptions>> = [];
   const cities: Awaited<ReturnType<typeof getAllCities>> = [];

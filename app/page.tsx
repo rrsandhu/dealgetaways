@@ -50,7 +50,7 @@ export default async function HomePage() {
       getFlashDeals(12).catch(() => []),
       getLastMinuteDeals(8).catch(() => []),
       getTopDeals(8).catch(() => []),
-      getCityDealCounts().catch(() => ({})),
+      getCityDealCounts().catch(() => ({} as Record<string, number>)),
     ]);
 
   // Map city id → deal count

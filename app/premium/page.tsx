@@ -14,10 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default async function PremiumPage({
-  searchParams,
+  searchParams: searchParamsProp,
 }: {
-  searchParams: { city?: string };
+  searchParams: Promise<{ city?: string }>;
 }) {
+  const searchParams = await searchParamsProp;
   const cities = await getAllCities().catch(() => []);
   const preselectedCity = cities.find((c) => c.slug === searchParams.city);
 

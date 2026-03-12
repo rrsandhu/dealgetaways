@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     destination?: string;
     checkIn?: string;
     checkOut?: string;
@@ -25,10 +25,11 @@ interface SearchPageProps {
     minStars?: string;
     sortBy?: string;
     page?: string;
-  };
+  }>;
 }
 
-export default async function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({ searchParams: searchParamsProp }: SearchPageProps) {
+  const searchParams = await searchParamsProp;
   const page = Number(searchParams.page ?? 1);
 
   const { deals, total } = await searchDeals({

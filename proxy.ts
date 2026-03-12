@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const utmSource = url.searchParams.get("utm_source");
   const response = NextResponse.next();
