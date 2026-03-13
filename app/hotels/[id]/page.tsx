@@ -9,6 +9,8 @@ import {
   Clock,
   ChevronLeft,
   TrendingDown,
+  ShieldCheck,
+  Users,
 } from "lucide-react";
 import { DealUrgencyBanner } from "@/components/deals/deal-urgency-banner";
 import { Button } from "@/components/ui/button";
@@ -64,6 +66,8 @@ export default async function HotelDetailPage({ params }: PageProps) {
     },
     starRating: { "@type": "Rating", ratingValue: hotel.star_rating },
     description: hotel.description ?? "",
+    ...(hotel.address ? { address: { "@type": "PostalAddress", streetAddress: hotel.address, addressLocality: hotel.city?.name ?? "", addressRegion: hotel.city?.province ?? "", addressCountry: "CA" } } : {}),
+    ...(hotel.rating_score != null ? { aggregateRating: { "@type": "AggregateRating", ratingValue: hotel.rating_score, bestRating: 10, reviewCount: hotel.review_count ?? 1 } } : {}),
     ...(hotel.image_url ? { image: hotel.image_url } : {}),
     ...(bestDeal
       ? {
@@ -143,27 +147,47 @@ export default async function HotelDetailPage({ params }: PageProps) {
                     <h1 className="text-2xl font-bold text-gray-900">
                       {hotel.name}
                     </h1>
-                    {hotel.city && (
-                      <div className="mt-1 flex items-center gap-1 text-gray-500">
-                        <MapPin className="h-4 w-4" />
-                        <span>{hotel.city.name}, Canada</span>
-                      </div>
-                    )}
-                    <div className="mt-2 flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={cn(
-                            "h-4 w-4",
-                            i < hotel.star_rating
-                              ? "fill-amber-400 text-amber-400"
-                              : "fill-gray-200 text-gray-200"
-                          )}
-                        />
-                      ))}
-                      <span className="ml-1 text-sm text-gray-500">
-                        {hotel.star_rating}-star hotel
+                    <div className="mt-1 flex items-center gap-1 text-gray-500">
+                      <MapPin className="h-4 w-4 shrink-0" />
+                      <span>
+                        {hotel.address
+                          ? `${hotel.address}, ${hotel.city?.name ?? "Canada"}`
+                          : hotel.city
+                          ? `${hotel.city.name}${hotel.city.province ? `, ${hotel.city.province}` : ""}`
+                          : "Canada"}
                       </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={cn(
+                              "h-4 w-4",
+                              i < hotel.star_rating
+                                ? "fill-amber-400 text-amber-400"
+                                : "fill-gray-200 text-gray-200"
+                            )}
+                          />
+                        ))}
+                        <span className="ml-1 text-sm text-gray-500">
+                          {hotel.star_rating}-star
+                        </span>
+                      </div>
+                      {hotel.rating_score != null && (
+                        <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1">
+                          <span className="text-sm font-bold text-blue-700">
+                            {hotel.rating_score.toFixed(1)}
+                          </span>
+                          <span className="text-xs text-blue-500">/10</span>
+                          {hotel.review_count != null && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 border-l border-blue-200 pl-1.5 ml-0.5">
+                              <Users className="h-3 w-3" />
+                              {hotel.review_count.toLocaleString()} reviews
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -211,7 +235,14 @@ export default async function HotelDetailPage({ params }: PageProps) {
                             <p className="text-xs text-gray-500 mt-0.5">
                               {formatDate(deal.check_in_date)} →{" "}
                               {formatDate(deal.check_out_date)}
+                              {deal.nights != null && ` · ${deal.nights} nights`}
                             </p>
+                          )}
+                          {deal.is_refundable && (
+                            <div className="mt-0.5 flex items-center gap-1 text-xs text-green-600 font-medium">
+                              <ShieldCheck className="h-3 w-3" />
+                              Free cancellation
+                            </div>
                           )}
                         </div>
                         <div className="text-right shrink-0">
@@ -283,10 +314,18 @@ export default async function HotelDetailPage({ params }: PageProps) {
                 <div className="flex h-48 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
                   <div className="text-center">
                     <MapPin className="mx-auto h-8 w-8 mb-2" />
-                    <p className="text-sm">
-                      {hotel.city?.name}, Canada
-                    </p>
-                    <p className="text-xs mt-1">Map integration available</p>
+                    {hotel.address ? (
+                      <>
+                        <p className="text-sm font-medium text-gray-600">{hotel.address}</p>
+                        <p className="text-xs mt-0.5">
+                          {hotel.city?.name}{hotel.city?.province ? `, ${hotel.city.province}` : ""}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm">
+                        {hotel.city?.name}{hotel.city?.province ? `, ${hotel.city.province}` : ", Canada"}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -314,7 +353,16 @@ export default async function HotelDetailPage({ params }: PageProps) {
                         {formatCurrency(bestDeal.original_price)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500">per night</p>
+                    <p className="text-sm text-gray-500">
+                      per night{bestDeal.nights != null ? ` · ${bestDeal.nights} nights` : ""}
+                    </p>
+
+                    {bestDeal.is_refundable && (
+                      <div className="mt-2 flex items-center gap-1 text-sm font-medium text-green-600">
+                        <ShieldCheck className="h-4 w-4" />
+                        Free cancellation
+                      </div>
+                    )}
 
                     {bestDeal.check_in_date && bestDeal.check_out_date && (
                       <p className="mt-2 text-xs text-gray-500">
