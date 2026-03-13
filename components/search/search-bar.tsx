@@ -13,7 +13,7 @@ interface SearchBarProps {
     checkOut?: string;
     guests?: number;
   };
-  variant?: "hero" | "compact";
+  variant?: "hero" | "compact" | "pill";
 }
 
 export function SearchBar({ className, initialValues, variant = "hero" }: SearchBarProps) {
@@ -31,6 +31,81 @@ export function SearchBar({ className, initialValues, variant = "hero" }: Search
     if (guests) params.set("guests", guests.toString());
     router.push(`/search?${params.toString()}`);
   };
+
+  if (variant === "pill") {
+    return (
+      <div className={cn("bg-white rounded-full p-2 flex flex-col md:flex-row items-center shadow-2xl text-slate-800 max-w-5xl mx-auto gap-1", className)}>
+        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-text w-full">
+          <MapPin className="shrink-0 text-blue-500" size={20} />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</div>
+            <input
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="Toronto, Banff..."
+              className="w-full bg-transparent outline-none font-medium text-sm placeholder-slate-300 text-slate-800"
+            />
+          </div>
+        </div>
+
+        <div className="hidden md:block w-px h-8 bg-slate-200 shrink-0" />
+
+        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-pointer w-full">
+          <Calendar className="shrink-0 text-blue-500" size={20} />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Check-in</div>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+            />
+          </div>
+        </div>
+
+        <div className="hidden md:block w-px h-8 bg-slate-200 shrink-0" />
+
+        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-pointer w-full">
+          <Calendar className="shrink-0 text-blue-500" size={20} />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Check-out</div>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+            />
+          </div>
+        </div>
+
+        <div className="hidden md:block w-px h-8 bg-slate-200 shrink-0" />
+
+        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-pointer w-full">
+          <Users className="shrink-0 text-blue-500" size={20} />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Guests</div>
+            <select
+              value={guests}
+              onChange={(e) => setGuests(Number(e.target.value))}
+              className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+            >
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <option key={n} value={n}>{n} {n === 1 ? "guest" : "guests"}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <button
+          onClick={handleSearch}
+          className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full transition-colors w-full md:w-auto flex justify-center shadow-md shrink-0"
+        >
+          <Search size={22} />
+        </button>
+      </div>
+    );
+  }
 
   if (variant === "compact") {
     return (

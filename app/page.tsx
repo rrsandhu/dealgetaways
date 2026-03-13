@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Zap, Bell, TrendingDown, Shield, Crown, Star, MapPin, Users, CheckCircle } from "lucide-react";
+import { ArrowRight, Zap, Bell, TrendingDown, Shield, Crown, Star, MapPin, Users, CheckCircle, Map, PiggyBank } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import { SearchBar } from "@/components/search/search-bar";
 import { FlashDealsCarousel } from "@/components/deals/flash-deals-carousel";
 import { DestinationCarousel } from "@/components/deals/destination-carousel";
@@ -65,74 +66,126 @@ export default async function HomePage() {
     <div className="bg-white">
 
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
-      <section style={{ background: 'linear-gradient(135deg, #1f5a73 0%, #2F7C9C 50%, #3d8fb3 100%)' }} className="relative overflow-hidden py-14 lg:py-20">
-        {/* subtle dot pattern */}
-        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `radial-gradient(circle, #fff 1px, transparent 1px)`, backgroundSize: '28px 28px' }} />
+      <section className="relative overflow-hidden flex flex-col" style={{ minHeight: 'calc(100vh - 64px)' }}>
+        {/* Background photo + overlay */}
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1469521669194-babbdf900920?q=80&w=2000&auto=format&fit=crop')" }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-teal-900/60 to-slate-900/95" />
+        </div>
 
-        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          {/* Pill tag */}
-          <div className="mb-5 flex justify-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6FAFD0] opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
-              </span>
-              🍁 929+ Real Canadian Hotel Deals · Updated Daily
-            </span>
+        <div className="relative z-10 flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 pt-14 pb-10 flex flex-col">
+
+          {/* Two-column grid */}
+          <div className="grid lg:grid-cols-12 gap-10 items-center flex-1">
+
+            {/* Left: Headline */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 text-sm font-medium text-blue-100">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6FAFD0] opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                </span>
+                🍁 929+ Real Canadian Hotel Deals · Updated Daily
+              </div>
+              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight text-white">
+                Unlock Canada&apos;s Hidden Hotel Gems at Unbeatable Prices.
+              </h1>
+              <p className="text-xl text-blue-100/90 md:pr-12">
+                Find verified deals from Whistler to Montreal.<br className="hidden md:block" />
+                Save an average of 38%.
+              </p>
+            </div>
+
+            {/* Right: Floating deal card */}
+            {trendingDeals[0] && (
+              <div className="lg:col-span-5">
+                <Link href={`/hotels/${trendingDeals[0].hotel_id}`}>
+                  <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-4 shadow-2xl shadow-black/50 hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                    {trendingDeals[0].hotel.image_url ? (
+                      <div className="relative w-full h-48 rounded-2xl overflow-hidden mb-4">
+                        <Image
+                          src={trendingDeals[0].hotel.image_url}
+                          alt={trendingDeals[0].hotel.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 rounded-2xl mb-4 bg-gradient-to-br from-[#2F7C9C] to-[#1f5a73]" />
+                    )}
+                    <div className="px-2">
+                      <h3 className="text-xl font-bold text-white mb-1 line-clamp-1">
+                        {trendingDeals[0].hotel.name}
+                      </h3>
+                      {trendingDeals[0].hotel.city && (
+                        <p className="text-white/60 text-sm mb-3">{trendingDeals[0].hotel.city.name}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-300 line-through text-sm">
+                              {formatCurrency(trendingDeals[0].original_price)}
+                            </span>
+                            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-2 py-1 rounded-full">
+                              🍁 Save {Math.round(trendingDeals[0].savings_percent)}%
+                            </span>
+                          </div>
+                          <div className="text-3xl font-extrabold text-white mt-1">
+                            {formatCurrency(trendingDeals[0].deal_price)}
+                            <span className="text-lg font-medium text-gray-300">/night</span>
+                          </div>
+                        </div>
+                        <div className="bg-white text-slate-900 px-5 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-lg text-sm">
+                          View Deal
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            )}
           </div>
 
-          <h1 className="text-center text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Find Incredible Hotel Deals
-            <br />
-            <span style={{ color: '#6FAFD0' }}>Across Canada</span>
-          </h1>
-
-          <p className="mt-4 text-center text-lg leading-relaxed text-white/80">
-            Real prices. Real savings. 24 Canadian cities covered.
-          </p>
-
-          {/* Search Bar */}
-          <div className="mt-8">
-            <SearchBar variant="hero" />
+          {/* Pill search bar */}
+          <div className="mt-12">
+            <SearchBar variant="pill" />
           </div>
 
-          {/* Popular city chips */}
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {/* City chips */}
+          <div className="flex flex-wrap justify-center gap-3 mt-6">
             {POPULAR_CITY_SLUGS.map((slug) => {
               const city = cities.find((c) => c.slug === slug);
               if (!city) return null;
               return (
                 <Link key={slug} href={`/deals/${slug}`}>
-                  <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-white/25 transition-colors cursor-pointer backdrop-blur-sm border border-white/20">
+                  <span className="rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 text-white text-sm px-4 py-2 transition-colors cursor-pointer">
                     {city.name}
                   </span>
                 </Link>
               );
             })}
           </div>
-        </div>
-      </section>
 
-      {/* ── TRUST STATS ──────────────────────────────────────────────────────── */}
-      <div className="border-b border-gray-100 bg-white">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="grid grid-cols-3 divide-x divide-gray-100">
+          {/* Trust stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 text-center max-w-4xl mx-auto border-t border-white/10 pt-10">
             {[
-              { value: "929+", label: "Live deals", icon: Zap },
-              { value: "24", label: "Canadian cities", icon: MapPin },
-              { value: "38%", label: "Avg. savings", icon: TrendingDown },
-            ].map(({ value, label, icon: Icon }) => (
-              <div key={label} className="flex items-center justify-center gap-2.5 py-4 px-4">
-                <Icon className="h-4 w-4 shrink-0" style={{ color: '#2F7C9C' }} />
-                <div>
-                  <p className="text-lg font-black text-gray-900">{value}</p>
-                  <p className="text-xs text-gray-500">{label}</p>
-                </div>
+              { value: "929+", label: "Live deals", badge: <span className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full text-sm text-white"><CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Verified</span> },
+              { value: "24", label: "Canadian cities", badge: <div className="bg-white/10 p-2 rounded-full inline-block"><Map className="h-5 w-5 text-blue-300" /></div> },
+              { value: "38%", label: "Avg. savings", badge: <div className="bg-white/10 p-2 rounded-full inline-block"><PiggyBank className="h-5 w-5 text-pink-300" /></div> },
+            ].map(({ value, label, badge }) => (
+              <div key={label} className="flex flex-col items-center justify-center space-y-2">
+                <div className="text-4xl font-extrabold text-white">{value}</div>
+                <div className="text-blue-100">{label}</div>
+                {badge}
               </div>
             ))}
           </div>
+
         </div>
-      </div>
+      </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
