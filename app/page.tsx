@@ -70,7 +70,7 @@ export default async function HomePage() {
         {/* Background photo + overlay */}
         <div
           className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1469521669194-babbdf900920?q=80&w=2000&auto=format&fit=crop')" }}
+          style={{ backgroundImage: "url('/hero.png')" }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-teal-900/60 to-slate-900/95" />
         </div>
