@@ -6,6 +6,7 @@ import { SearchBar } from "@/components/search/search-bar";
 import { FlashDealsCarousel } from "@/components/deals/flash-deals-carousel";
 import { DestinationCarousel } from "@/components/deals/destination-carousel";
 import { DealCard } from "@/components/hotel/deal-card";
+import { TrendingDealsSection } from "@/components/deals/trending-deals-section";
 import {
   getAllCities,
   getFlashDeals,
@@ -58,8 +59,7 @@ export default async function HomePage() {
     .filter((c) => POPULAR_CITY_SLUGS.includes(c.slug))
     .sort((a, b) => POPULAR_CITY_SLUGS.indexOf(a.slug) - POPULAR_CITY_SLUGS.indexOf(b.slug));
 
-  // Top 4 for "Trending Now" grid, next 4 blurred for premium teaser
-  const trendingDeals = topDeals.slice(0, 4);
+  // First deal used in hero card; next 4 blurred for premium teaser
   const premiumTeaserDeals = topDeals.slice(4, 8);
 
   return (
@@ -99,15 +99,15 @@ export default async function HomePage() {
             </div>
 
             {/* Right: Floating deal card — hidden on mobile */}
-            {trendingDeals[0] && (
+            {topDeals[0] && (
               <div className="hidden lg:block lg:col-span-5">
-                <Link href={`/hotels/${trendingDeals[0].hotel_id}`}>
+                <Link href={`/hotels/${topDeals[0].hotel_id}`}>
                   <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-4 shadow-2xl shadow-black/50 hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
-                    {trendingDeals[0].hotel.image_url ? (
+                    {topDeals[0].hotel.image_url ? (
                       <div className="relative w-full h-48 rounded-2xl overflow-hidden mb-4">
                         <Image
-                          src={trendingDeals[0].hotel.image_url}
-                          alt={trendingDeals[0].hotel.name}
+                          src={topDeals[0].hotel.image_url}
+                          alt={topDeals[0].hotel.name}
                           fill
                           className="object-cover"
                           sizes="(max-width: 1024px) 100vw, 33vw"
@@ -118,23 +118,23 @@ export default async function HomePage() {
                     )}
                     <div className="px-2">
                       <h3 className="text-xl font-bold text-white mb-1 line-clamp-1">
-                        {trendingDeals[0].hotel.name}
+                        {topDeals[0].hotel.name}
                       </h3>
-                      {trendingDeals[0].hotel.city && (
-                        <p className="text-white/60 text-sm mb-3">{trendingDeals[0].hotel.city.name}</p>
+                      {topDeals[0].hotel.city && (
+                        <p className="text-white/60 text-sm mb-3">{topDeals[0].hotel.city.name}</p>
                       )}
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-300 line-through text-sm">
-                              {formatCurrency(trendingDeals[0].original_price)}
+                              {formatCurrency(topDeals[0].original_price)}
                             </span>
                             <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-2 py-1 rounded-full">
-                              🍁 Save {Math.round(trendingDeals[0].savings_percent)}%
+                              🍁 Save {Math.round(topDeals[0].savings_percent)}%
                             </span>
                           </div>
                           <div className="text-3xl font-extrabold text-white mt-1">
-                            {formatCurrency(trendingDeals[0].deal_price)}
+                            {formatCurrency(topDeals[0].deal_price)}
                             <span className="text-lg font-medium text-gray-300">/night</span>
                           </div>
                         </div>
@@ -190,22 +190,7 @@ export default async function HomePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* ── TRENDING DEALS ───────────────────────────────────────────────── */}
-        <section className="py-10">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Trending Deals Right Now</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Highest savings across Canada today</p>
-            </div>
-            <Link href="/search?sortBy=best_deals" className="flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: '#2F7C9C' }}>
-              View all <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {trendingDeals.map((deal) => (
-              <DealCard key={deal.id} deal={deal} hotel={deal.hotel} isBlurred={false} />
-            ))}
-          </div>
-        </section>
+        <TrendingDealsSection deals={topDeals} />
 
         {/* ── FLASH DEALS CAROUSEL ─────────────────────────────────────────── */}
         {flashDeals.length > 0 && (
