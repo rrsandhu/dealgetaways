@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { MapPin, Zap, Clock, Crown, Menu, X, ChevronDown, Plane } from "lucide-react";
+import { MapPin, Zap, Clock, Crown, Menu, X, ChevronDown } from "lucide-react";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import type { DbCity } from "@/types";
@@ -23,19 +24,15 @@ export function Navbar({ cities = [] }: NavbarProps) {
         <div className="flex h-16 items-center justify-between">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
-              <Plane className="h-4.5 w-4.5 text-white" style={{ fill: 'rgba(255,255,255,0.9)' }} />
-            </div>
-            <div className="hidden sm:block">
-              <span className="text-lg font-black tracking-tight text-white">
-                Deal<span style={{ color: '#6FAFD0' }}>Getaways</span>
-              </span>
-              <span className="block text-[9px] font-medium tracking-widest text-white/60 uppercase -mt-0.5">
-                Canada&apos;s Best Hotel Deals
-              </span>
-            </div>
-            <span className="sm:hidden text-lg font-black tracking-tight text-white">DG</span>
+          <Link href="/" className="flex items-center shrink-0">
+            <Image
+              src="/logo.svg"
+              alt="DealGetaways"
+              width={160}
+              height={44}
+              className="h-10 w-auto rounded-md"
+              priority
+            />
           </Link>
 
           {/* Desktop Nav */}
