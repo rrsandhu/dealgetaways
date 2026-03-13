@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star, MapPin, Clock, Zap, ExternalLink } from "lucide-react";
+import { Star, MapPin, Clock, Zap, ExternalLink, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DbDeal, DbHotel, DbCity } from "@/types";
@@ -79,6 +79,26 @@ export function DealCard({
               )}
             </div>
 
+            {hotel.rating_score != null && (
+              <div className="mt-1 flex items-center gap-1">
+                <span className="text-xs font-semibold text-blue-700">
+                  {hotel.rating_score.toFixed(1)}
+                </span>
+                {hotel.review_count != null && (
+                  <span className="text-xs text-gray-400">
+                    ({hotel.review_count.toLocaleString()} reviews)
+                  </span>
+                )}
+              </div>
+            )}
+
+            {deal.is_refundable && (
+              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-green-600">
+                <ShieldCheck className="h-3 w-3" />
+                Free cancellation
+              </div>
+            )}
+
             {deal.source && (
               <p className="mt-1 text-xs text-gray-400">via {deal.source}</p>
             )}
@@ -106,7 +126,9 @@ export function DealCard({
                   {formatCurrency(deal.original_price)}
                 </span>
               </div>
-              <p className="text-xs text-gray-500">per night</p>
+              <p className="text-xs text-gray-500">
+                per night{deal.nights != null ? ` · ${deal.nights} nights` : ""}
+              </p>
               {deal.check_in_date && (
                 <p className="text-xs text-gray-400 mt-0.5">
                   {new Date(deal.check_in_date).toLocaleDateString("en-CA", {
@@ -195,22 +217,41 @@ export function DealCard({
           </h3>
         </Link>
 
-        <div className="mt-1 flex items-center gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className={cn(
-                "h-3 w-3",
-                i < hotel.star_rating
-                  ? "fill-amber-400 text-amber-400"
-                  : "fill-gray-200 text-gray-200"
+        <div className="mt-1 flex items-center gap-2">
+          <div className="flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={cn(
+                  "h-3 w-3",
+                  i < hotel.star_rating
+                    ? "fill-amber-400 text-amber-400"
+                    : "fill-gray-200 text-gray-200"
+                )}
+              />
+            ))}
+          </div>
+          {hotel.rating_score != null && (
+            <span className="text-xs font-semibold text-blue-700">
+              {hotel.rating_score.toFixed(1)}
+              {hotel.review_count != null && (
+                <span className="font-normal text-gray-400 ml-0.5">
+                  ({hotel.review_count.toLocaleString()})
+                </span>
               )}
-            />
-          ))}
+            </span>
+          )}
         </div>
 
+        {deal.is_refundable && (
+          <div className="mt-1.5 flex items-center gap-1 text-xs font-medium text-green-600">
+            <ShieldCheck className="h-3 w-3" />
+            Free cancellation
+          </div>
+        )}
+
         {expiringSoon && deal.expires_at && (
-          <div className="mt-2 flex items-center gap-1 text-xs font-medium text-orange-600">
+          <div className="mt-1.5 flex items-center gap-1 text-xs font-medium text-orange-600">
             <Clock className="h-3 w-3" />
             {timeUntil(deal.expires_at)}
           </div>
@@ -231,7 +272,9 @@ export function DealCard({
                 {formatCurrency(deal.original_price)}
               </span>
             </div>
-            <p className="text-xs text-gray-500">per night</p>
+            <p className="text-xs text-gray-500">
+              per night{deal.nights != null ? ` · ${deal.nights} nights` : ""}
+            </p>
           </div>
         </div>
 

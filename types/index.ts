@@ -5,6 +5,7 @@ export interface DbCity {
   name: string;
   country: string;
   slug: string;
+  province: string | null;
 }
 
 export interface DbHotel {
@@ -14,6 +15,9 @@ export interface DbHotel {
   star_rating: number;
   image_url: string | null;
   description: string | null;
+  rating_score: number | null;
+  address: string | null;
+  review_count: number | null;
 }
 
 export interface DbDeal {
@@ -28,6 +32,10 @@ export interface DbDeal {
   source: string | null;
   is_active: boolean;
   expires_at: string | null;
+  currency: string;
+  is_refundable: boolean | null;
+  nights: number | null;
+  last_scraped_at: string | null;
 }
 
 export interface DbPriceHistory {
