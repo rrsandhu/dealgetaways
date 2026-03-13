@@ -65,6 +65,17 @@ const config: Config = {
           800: "#1e40af",
           900: "#1e3a8a",
         },
+        dg: {
+          blue: '#2F7C9C',
+          'blue-dark': '#1f5a73',
+          'blue-light': '#3d8fb3',
+          orange: '#E76D38',
+          'orange-dark': '#c45a2a',
+          'orange-light': '#f0855a',
+          sky: '#6FAFD0',
+          'sky-light': '#e8f4fa',
+          'sky-dark': '#4a8fb5',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getAllCities } from "@/lib/supabase/queries";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
@@ -58,7 +55,7 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`${inter.className} min-h-screen bg-gray-50`}>
+        <body className="min-h-screen bg-white">
           <Navbar cities={cities} />
           <main className="min-h-[calc(100vh-64px)]">{children}</main>
           <Footer cities={cities} />
