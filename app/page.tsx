@@ -77,8 +77,8 @@ export default async function HomePage() {
 
         <div className="relative z-10 flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 pt-14 pb-10 flex flex-col">
 
-          {/* Two-column grid */}
-          <div className="grid lg:grid-cols-12 gap-10 items-center flex-1">
+          {/* Two-column grid — deal card hidden on mobile, shown from lg */}
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center flex-1">
 
             {/* Left: Headline */}
             <div className="lg:col-span-7 space-y-6">
@@ -89,18 +89,18 @@ export default async function HomePage() {
                 </span>
                 🍁 929+ Real Canadian Hotel Deals · Updated Daily
               </div>
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight text-white">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-white">
                 Unlock Canada&apos;s Hidden Hotel Gems at Unbeatable Prices.
               </h1>
-              <p className="text-xl text-blue-100/90 md:pr-12">
+              <p className="text-lg md:text-xl text-blue-100/90 md:pr-12">
                 Find verified deals from Whistler to Montreal.<br className="hidden md:block" />
                 Save an average of 38%.
               </p>
             </div>
 
-            {/* Right: Floating deal card */}
+            {/* Right: Floating deal card — hidden on mobile */}
             {trendingDeals[0] && (
-              <div className="lg:col-span-5">
+              <div className="hidden lg:block lg:col-span-5">
                 <Link href={`/hotels/${trendingDeals[0].hotel_id}`}>
                   <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-4 shadow-2xl shadow-black/50 hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
                     {trendingDeals[0].hotel.image_url ? (
@@ -170,7 +170,7 @@ export default async function HomePage() {
           </div>
 
           {/* Trust stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 text-center max-w-4xl mx-auto border-t border-white/10 pt-10">
+          <div className="grid grid-cols-3 gap-4 mt-10 text-center max-w-4xl mx-auto border-t border-white/10 pt-8">
             {[
               { value: "929+", label: "Live deals", badge: <span className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full text-sm text-white"><CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Verified</span> },
               { value: "24", label: "Canadian cities", badge: <div className="bg-white/10 p-2 rounded-full inline-block"><Map className="h-5 w-5 text-blue-300" /></div> },

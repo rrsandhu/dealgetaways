@@ -114,9 +114,9 @@ export default async function HotelDetailPage({ params }: PageProps) {
         </div>
 
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3">
             {/* Main content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="md:col-span-2 space-y-6">
               {/* Image gallery */}
               <div className="relative overflow-hidden rounded-2xl bg-gray-200 aspect-[16/9]">
                 {hotel.image_url ? (
@@ -217,7 +217,7 @@ export default async function HotelDetailPage({ params }: PageProps) {
                     {deals.map((deal) => (
                       <div
                         key={deal.id}
-                        className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4"
+                        className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -332,8 +332,8 @@ export default async function HotelDetailPage({ params }: PageProps) {
             </div>
 
             {/* Sticky sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-4">
+            <div className="md:col-span-1">
+              <div className="md:sticky md:top-24 space-y-4">
                 {bestDeal ? (
                   <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">

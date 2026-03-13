@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface SearchBarProps {
   className?: string;
@@ -32,77 +33,146 @@ export function SearchBar({ className, initialValues, variant = "hero" }: Search
     router.push(`/search?${params.toString()}`);
   };
 
+  const checkInDate = checkIn ? new Date(checkIn + "T12:00:00") : new Date();
+  const checkOutMin = checkIn ? new Date(checkIn + "T12:00:00") : new Date();
+  checkOutMin.setDate(checkOutMin.getDate() + 1);
+
   if (variant === "pill") {
     return (
-      <div className={cn("bg-white rounded-full p-2 flex flex-col md:flex-row items-center shadow-2xl text-slate-800 max-w-5xl mx-auto gap-1", className)}>
-        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-text w-full">
-          <MapPin className="shrink-0 text-blue-500" size={20} />
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</div>
-            <input
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Toronto, Banff..."
-              className="w-full bg-transparent outline-none font-medium text-sm placeholder-slate-300 text-slate-800"
-            />
+      <div className={cn("bg-white rounded-3xl md:rounded-full shadow-2xl text-slate-800 max-w-5xl mx-auto overflow-hidden", className)}>
+        {/* Mobile: 2-column grid layout */}
+        <div className="grid grid-cols-2 md:hidden">
+          {/* Destination - full width */}
+          <div className="col-span-2 flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+            <MapPin className="shrink-0 text-blue-500" size={18} />
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</div>
+              <input
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="Toronto, Banff..."
+                className="w-full bg-transparent outline-none font-medium text-sm placeholder-slate-300 text-slate-800"
+              />
+            </div>
           </div>
-        </div>
-
-        <div className="hidden md:block w-px h-8 bg-slate-200 shrink-0" />
-
-        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-pointer w-full">
-          <Calendar className="shrink-0 text-blue-500" size={20} />
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Check-in</div>
-            <input
-              type="date"
+          {/* Check-in */}
+          <div className="flex items-center gap-2 px-4 py-4 border-b border-r border-slate-100">
+            <Calendar className="shrink-0 text-blue-500" size={16} />
+            <DatePicker
               value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+              onChange={setCheckIn}
+              label="Check-in"
+              placeholder="Add date"
+              className="flex-1 min-w-0"
             />
           </div>
-        </div>
-
-        <div className="hidden md:block w-px h-8 bg-slate-200 shrink-0" />
-
-        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-pointer w-full">
-          <Calendar className="shrink-0 text-blue-500" size={20} />
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Check-out</div>
-            <input
-              type="date"
+          {/* Check-out */}
+          <div className="flex items-center gap-2 px-4 py-4 border-b border-slate-100">
+            <Calendar className="shrink-0 text-blue-500" size={16} />
+            <DatePicker
               value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+              onChange={setCheckOut}
+              label="Check-out"
+              placeholder="Add date"
+              minDate={checkOutMin}
+              className="flex-1 min-w-0"
             />
           </div>
-        </div>
-
-        <div className="hidden md:block w-px h-8 bg-slate-200 shrink-0" />
-
-        <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-pointer w-full">
-          <Users className="shrink-0 text-blue-500" size={20} />
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Guests</div>
-            <select
-              value={guests}
-              onChange={(e) => setGuests(Number(e.target.value))}
-              className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
-            >
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <option key={n} value={n}>{n} {n === 1 ? "guest" : "guests"}</option>
-              ))}
-            </select>
+          {/* Guests */}
+          <div className="flex items-center gap-2 px-4 py-4">
+            <Users className="shrink-0 text-blue-500" size={16} />
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Guests</div>
+              <select
+                value={guests}
+                onChange={(e) => setGuests(Number(e.target.value))}
+                className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+              >
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>{n} {n === 1 ? "guest" : "guests"}</option>
+                ))}
+              </select>
+            </div>
           </div>
+          {/* Search button */}
+          <button
+            onClick={handleSearch}
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-colors"
+          >
+            <Search size={18} />
+            Search
+          </button>
         </div>
 
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full transition-colors w-full md:w-auto flex justify-center shadow-md shrink-0"
-        >
-          <Search size={22} />
-        </button>
+        {/* Desktop: horizontal pill layout */}
+        <div className="hidden md:flex items-center p-2 gap-1">
+          <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full cursor-text">
+            <MapPin className="shrink-0 text-blue-500" size={20} />
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</div>
+              <input
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="Toronto, Banff..."
+                className="w-full bg-transparent outline-none font-medium text-sm placeholder-slate-300 text-slate-800"
+              />
+            </div>
+          </div>
+
+          <div className="w-px h-8 bg-slate-200 shrink-0" />
+
+          <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full">
+            <Calendar className="shrink-0 text-blue-500" size={20} />
+            <DatePicker
+              value={checkIn}
+              onChange={setCheckIn}
+              label="Check-in"
+              placeholder="Add date"
+              className="flex-1 min-w-0"
+            />
+          </div>
+
+          <div className="w-px h-8 bg-slate-200 shrink-0" />
+
+          <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full">
+            <Calendar className="shrink-0 text-blue-500" size={20} />
+            <DatePicker
+              value={checkOut}
+              onChange={setCheckOut}
+              label="Check-out"
+              placeholder="Add date"
+              minDate={checkOutMin}
+              className="flex-1 min-w-0"
+            />
+          </div>
+
+          <div className="w-px h-8 bg-slate-200 shrink-0" />
+
+          <div className="flex-1 flex items-center gap-3 px-5 py-3 hover:bg-slate-50 rounded-full">
+            <Users className="shrink-0 text-blue-500" size={20} />
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Guests</div>
+              <select
+                value={guests}
+                onChange={(e) => setGuests(Number(e.target.value))}
+                className="w-full bg-transparent outline-none font-medium text-sm text-slate-800"
+              >
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>{n} {n === 1 ? "guest" : "guests"}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSearch}
+            className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full transition-colors flex items-center justify-center shadow-md shrink-0"
+          >
+            <Search size={22} />
+          </button>
+        </div>
       </div>
     );
   }
@@ -131,11 +201,12 @@ export function SearchBar({ className, initialValues, variant = "hero" }: Search
     );
   }
 
+  // hero variant
   return (
-    <div className={cn("rounded-2xl bg-white p-2 shadow-2xl", className)}>
+    <div className={cn("rounded-2xl bg-white shadow-2xl overflow-hidden", className)}>
       <div className="grid grid-cols-1 gap-px sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]">
         {/* Destination */}
-        <div className="flex items-center gap-3 rounded-xl px-4 py-3.5 hover:bg-gray-50 transition-colors cursor-text">
+        <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors cursor-text">
           <MapPin className="h-5 w-5 shrink-0" style={{ color: '#2F7C9C' }} />
           <div className="flex-1 min-w-0">
             <label className="block text-[10px] font-bold uppercase tracking-widest" style={{ color: '#2F7C9C' }}>
@@ -152,40 +223,33 @@ export function SearchBar({ className, initialValues, variant = "hero" }: Search
         </div>
 
         {/* Check-in */}
-        <div className="flex items-center gap-3 rounded-xl px-4 py-3.5 hover:bg-gray-50 transition-colors border-t sm:border-t-0 sm:border-l border-gray-100">
+        <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors border-t sm:border-t-0 sm:border-l border-gray-100">
           <Calendar className="h-5 w-5 shrink-0" style={{ color: '#2F7C9C' }} />
-          <div className="flex-1 min-w-0">
-            <label className="block text-[10px] font-bold uppercase tracking-widest" style={{ color: '#2F7C9C' }}>
-              Check-in
-            </label>
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="mt-0.5 block w-full bg-transparent text-sm font-medium text-gray-900 outline-none"
-            />
-          </div>
+          <DatePicker
+            value={checkIn}
+            onChange={setCheckIn}
+            label="Check-in"
+            placeholder="Add dates"
+            className="flex-1 min-w-0"
+          />
         </div>
 
         {/* Check-out */}
-        <div className="flex items-center gap-3 rounded-xl px-4 py-3.5 hover:bg-gray-50 transition-colors border-t sm:border-t-0 sm:border-l border-gray-100">
+        <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors border-t sm:border-t-0 sm:border-l border-gray-100">
           <Calendar className="h-5 w-5 shrink-0" style={{ color: '#2F7C9C' }} />
-          <div className="flex-1 min-w-0">
-            <label className="block text-[10px] font-bold uppercase tracking-widest" style={{ color: '#2F7C9C' }}>
-              Check-out
-            </label>
-            <input
-              type="date"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="mt-0.5 block w-full bg-transparent text-sm font-medium text-gray-900 outline-none"
-            />
-          </div>
+          <DatePicker
+            value={checkOut}
+            onChange={setCheckOut}
+            label="Check-out"
+            placeholder="Add dates"
+            minDate={checkOutMin}
+            className="flex-1 min-w-0"
+          />
         </div>
 
         {/* Guests + Search button */}
         <div className="flex items-center gap-2 border-t lg:border-t-0 lg:border-l border-gray-100">
-          <div className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3.5 hover:bg-gray-50 transition-colors">
+          <div className="flex flex-1 items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors">
             <Users className="h-5 w-5 shrink-0" style={{ color: '#2F7C9C' }} />
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] font-bold uppercase tracking-widest" style={{ color: '#2F7C9C' }}>

@@ -34,20 +34,20 @@ export function FlashDealsCarousel({ deals, title = "Flash Deals", subtitle = "E
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => scroll("left")} className="rounded-full border border-gray-200 bg-white p-2 shadow-sm hover:bg-gray-50 transition-colors">
+          <button onClick={() => scroll("left")} className="rounded-full border border-gray-200 bg-white p-2.5 shadow-sm hover:bg-gray-50 transition-colors">
             <ChevronLeft className="h-4 w-4 text-gray-600" />
           </button>
-          <button onClick={() => scroll("right")} className="rounded-full border border-gray-200 bg-white p-2 shadow-sm hover:bg-gray-50 transition-colors">
+          <button onClick={() => scroll("right")} className="rounded-full border border-gray-200 bg-white p-2.5 shadow-sm hover:bg-gray-50 transition-colors">
             <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+      <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory">
         {deals.map((deal) => {
           const bookingUrl = buildBookingUrl(deal.booking_url ?? "#");
           return (
-            <div key={deal.id} className="w-72 shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+            <div key={deal.id} className="w-60 sm:w-72 shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="relative h-44 overflow-hidden bg-gray-100">
                 {deal.hotel?.image_url ? (
                   <Image src={deal.hotel.image_url} alt={deal.hotel.name} fill className="object-cover" sizes="288px" />
