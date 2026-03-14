@@ -30,6 +30,39 @@ export const CITY_PLACE_IDS: Record<string, string> = {
   calgary:               "ChIJ1T-EnwNwcVMROrZStrE7bSY",
 };
 
+// ── Deep links to the LiteAPI whitelabel booking site ────────────────────────
+
+/**
+ * Build a deep-link URL to the LiteAPI whitelabel booking page.
+ * Requires NEXT_PUBLIC_LITEAPI_DOMAIN to be set (e.g. "yourbrand.nuitee.link").
+ *
+ * With a hotelId → lands on that specific hotel's booking page.
+ * Without → lands on the search page, optionally pre-filled with placeId.
+ */
+export function buildLiteAPIDeepLink(opts: {
+  hotelId?: string;
+  placeId?: string;
+  checkin?: string;
+  checkout?: string;
+  adults?: number;
+  currency?: string;
+}): string {
+  const domain = process.env.NEXT_PUBLIC_LITEAPI_DOMAIN;
+  if (!domain) return "#"; // not configured
+
+  const params = new URLSearchParams();
+  if (opts.checkin) params.set("checkin", opts.checkin);
+  if (opts.checkout) params.set("checkout", opts.checkout);
+  if (opts.adults) params.set("adults", String(opts.adults));
+  if (opts.currency) params.set("currency", opts.currency);
+  if (opts.placeId) params.set("placeId", opts.placeId);
+
+  const base = `https://${domain}`;
+  const path = opts.hotelId ? `/hotel/${opts.hotelId}` : "";
+  const qs = params.toString();
+  return `${base}${path}${qs ? `?${qs}` : ""}`;
+}
+
 /** Declare LiteAPI global on window */
 declare global {
   interface Window {

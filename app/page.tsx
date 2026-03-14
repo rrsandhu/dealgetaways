@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Zap, Bell, TrendingDown, Shield, Crown, Star, MapPin, Users, CheckCircle, Map, PiggyBank } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { LiteAPISearchWidget } from "@/components/liteapi/search-widget";
+import { HotelSearchForm } from "@/components/booking/hotel-search-form";
 import { FlashDealsCarousel } from "@/components/deals/flash-deals-carousel";
 import { DestinationCarousel } from "@/components/deals/destination-carousel";
 import { DealCard } from "@/components/hotel/deal-card";
@@ -149,9 +149,9 @@ export default async function HomePage() {
             )}
           </div>
 
-          {/* LiteAPI live search */}
+          {/* Live hotel search */}
           <div className="mt-12">
-            <LiteAPISearchWidget className="w-full" />
+            <HotelSearchForm className="w-full" />
           </div>
 
           {/* City chips */}

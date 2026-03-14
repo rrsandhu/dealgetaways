@@ -9,11 +9,15 @@ interface DatePickerProps {
   onChange: (date: string) => void;
   label?: string;
   placeholder?: string;
-  minDate?: Date;
+  /** Either a Date object or a YYYY-MM-DD string */
+  minDate?: Date | string;
   className?: string;
+  /** Use white text on dark/transparent background */
+  darkMode?: boolean;
 }
 
-export function DatePicker({ value, onChange, label, placeholder = "Select date", minDate, className }: DatePickerProps) {
+export function DatePicker({ value, onChange, label, placeholder = "Select date", minDate, className, darkMode }: DatePickerProps) {
+  const minDateObj = typeof minDate === "string" ? new Date(minDate + "T12:00:00") : minDate;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -44,11 +48,22 @@ export function DatePicker({ value, onChange, label, placeholder = "Select date"
 
   return (
     <div ref={ref} className={`relative ${className ?? ""}`}>
-      <button type="button" className="w-full text-left" onClick={() => setOpen((v) => !v)}>
-        {label && <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>}
-        <div className={`text-sm font-medium ${formatted ? "text-slate-800" : "text-slate-400"}`}>
-          {formatted ?? placeholder}
-        </div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={
+          darkMode
+            ? `w-full h-12 text-left px-4 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm text-sm font-medium transition-all hover:bg-white/20 ${formatted ? "text-white" : "text-white/50"}`
+            : "w-full text-left"
+        }
+      >
+        {!darkMode && label && <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>}
+        {!darkMode && (
+          <div className={`text-sm font-medium ${formatted ? "text-slate-800" : "text-slate-400"}`}>
+            {formatted ?? placeholder}
+          </div>
+        )}
+        {darkMode && <span>{formatted ?? placeholder}</span>}
       </button>
 
       {open && (
@@ -70,8 +85,8 @@ export function DatePicker({ value, onChange, label, placeholder = "Select date"
               mode="single"
               selected={selected}
               onSelect={handleSelect}
-              disabled={minDate ? { before: minDate } : { before: new Date() }}
-              startMonth={minDate ?? new Date()}
+              disabled={minDateObj ? { before: minDateObj } : { before: new Date() }}
+              startMonth={minDateObj ?? new Date()}
               components={{
                 Chevron: ({ orientation }) =>
                   orientation === "left"
