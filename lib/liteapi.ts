@@ -1,9 +1,9 @@
 /**
  * LiteAPI configuration and utilities.
- * Set NEXT_PUBLIC_LITEAPI_DOMAIN in your .env (e.g. "yourbrand.nuitee.link")
  */
 
-export const LITEAPI_DOMAIN = process.env.NEXT_PUBLIC_LITEAPI_DOMAIN ?? "";
+const DEFAULT_DOMAIN = "dealgetaways.nuitee.link";
+export const LITEAPI_DOMAIN = process.env.NEXT_PUBLIC_LITEAPI_DOMAIN || DEFAULT_DOMAIN;
 export const LITEAPI_BRAND_COLOR = "#2F7C9C";
 export const LITEAPI_SDK_URL = "https://components.liteapi.travel/v1.0/sdk.umd.js";
 
@@ -34,8 +34,6 @@ export const CITY_PLACE_IDS: Record<string, string> = {
 
 /**
  * Build a deep-link URL to the LiteAPI whitelabel booking page.
- * Requires NEXT_PUBLIC_LITEAPI_DOMAIN to be set (e.g. "yourbrand.nuitee.link").
- *
  * With a hotelId → lands on that specific hotel's booking page.
  * Without → lands on the search page, optionally pre-filled with placeId.
  */
@@ -47,8 +45,7 @@ export function buildLiteAPIDeepLink(opts: {
   adults?: number;
   currency?: string;
 }): string {
-  const domain = process.env.NEXT_PUBLIC_LITEAPI_DOMAIN;
-  if (!domain) return "#"; // not configured
+  const domain = process.env.NEXT_PUBLIC_LITEAPI_DOMAIN || DEFAULT_DOMAIN;
 
   const params = new URLSearchParams();
   if (opts.checkin) params.set("checkin", opts.checkin);
