@@ -6,7 +6,10 @@ import { DealCard } from "@/components/hotel/deal-card";
 import { Button } from "@/components/ui/button";
 import { searchDeals } from "@/lib/supabase/queries";
 import Link from "next/link";
-import { Crown } from "lucide-react";
+import { Crown, Map } from "lucide-react";
+import { LiteAPIMapWidget } from "@/components/liteapi/map-widget";
+import { LiteAPIHotelsListWidget } from "@/components/liteapi/hotels-list-widget";
+import { CITY_PLACE_IDS } from "@/lib/liteapi";
 
 export const metadata: Metadata = {
   title: "Search Hotel Deals Across Canada",
@@ -158,6 +161,40 @@ export default async function SearchPage({ searchParams: searchParamsProp }: Sea
                 </Button>
               </Link>
             </div>
+
+            {/* LiteAPI live booking — shown when destination matches a known city */}
+            {(() => {
+              const dest = searchParams.destination?.toLowerCase().replace(/\s+/g, "-") ?? "";
+              const placeId = Object.entries(CITY_PLACE_IDS).find(([slug]) =>
+                slug.includes(dest) || dest.includes(slug.replace("-downtown", ""))
+              )?.[1];
+              if (!placeId) return null;
+              return (
+                <div className="mt-10 space-y-6">
+                  <div className="flex items-center gap-2">
+                    <Map className="h-5 w-5 text-[#2F7C9C]" />
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Live Hotels — Book Instantly
+                    </h2>
+                  </div>
+                  <div className="overflow-hidden rounded-2xl border border-gray-200">
+                    <LiteAPIMapWidget
+                      placeId={placeId}
+                      instanceId="search"
+                      height="460px"
+                      currency="CAD"
+                    />
+                  </div>
+                  <LiteAPIHotelsListWidget
+                    placeId={placeId}
+                    instanceId="search-list"
+                    hasSearchBar={false}
+                    rows={10}
+                    currency="CAD"
+                  />
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

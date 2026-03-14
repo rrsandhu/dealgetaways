@@ -5,6 +5,9 @@ import { MapPin, Crown } from "lucide-react";
 import { DealCard } from "@/components/hotel/deal-card";
 import { SearchBar } from "@/components/search/search-bar";
 import { CitySubscriptionGate } from "@/components/premium/city-subscription-gate";
+import { LiteAPIMapWidget } from "@/components/liteapi/map-widget";
+import { LiteAPIHotelsListWidget } from "@/components/liteapi/hotels-list-widget";
+import { CITY_PLACE_IDS } from "@/lib/liteapi";
 import { Button } from "@/components/ui/button";
 import {
   getAllCities,
@@ -197,6 +200,43 @@ export default async function CityDealsPage({ params }: PageProps) {
                 </Suspense>
               )}
             </>
+          )}
+          {/* LiteAPI live booking widgets */}
+          {CITY_PLACE_IDS[citySlug] && (
+            <div className="mt-10 space-y-8">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-1">
+                  Book Live — {city.name} Hotels
+                </h2>
+                <p className="text-sm text-gray-500 mb-4">
+                  Real-time availability and instant booking powered by LiteAPI
+                </p>
+                <LiteAPIHotelsListWidget
+                  placeId={CITY_PLACE_IDS[citySlug]}
+                  instanceId={citySlug}
+                  hasSearchBar={false}
+                  rows={8}
+                  currency="CAD"
+                />
+              </div>
+
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-1">
+                  Map View
+                </h2>
+                <p className="text-sm text-gray-500 mb-4">
+                  Explore hotels in {city.name} on the map
+                </p>
+                <div className="overflow-hidden rounded-2xl border border-gray-200">
+                  <LiteAPIMapWidget
+                    placeId={CITY_PLACE_IDS[citySlug]}
+                    instanceId={citySlug}
+                    height="480px"
+                    currency="CAD"
+                  />
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
