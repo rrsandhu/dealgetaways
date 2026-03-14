@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Star, MapPin, Clock, Zap, ExternalLink, ShieldCheck } from "lucide-react";
 import type { DbDeal, DbHotel, DbCity } from "@/types";
 import { formatCurrency, timeUntil, isExpiringSoon, cn } from "@/lib/utils";
-import { buildBookingUrl } from "@/lib/utm";
 
 interface DealCardProps {
   deal: DbDeal;
@@ -14,7 +13,11 @@ interface DealCardProps {
 
 export function DealCard({ deal, hotel, isBlurred = false, variant = "grid" }: DealCardProps) {
   const expiringSoon = isExpiringSoon(deal.expires_at);
-  const bookingUrl = buildBookingUrl(deal.booking_url ?? "#");
+  // Build a LiteAPI search URL using the hotel name (+ deal dates when available)
+  const liteApiSearchParams = new URLSearchParams({ aiSearch: hotel.name, adults: "2" });
+  if (deal.check_in_date) liteApiSearchParams.set("checkin", deal.check_in_date);
+  if (deal.check_out_date) liteApiSearchParams.set("checkout", deal.check_out_date);
+  const bookingUrl = `/hotels?${liteApiSearchParams.toString()}`;
   const savingsPct = Math.round(deal.savings_percent);
 
   if (variant === "list") {
@@ -104,12 +107,12 @@ export function DealCard({ deal, hotel, isBlurred = false, variant = "grid" }: D
                 </button>
               </Link>
             ) : (
-              <a href={bookingUrl} target="_blank" rel="noopener noreferrer sponsored">
+              <Link href={bookingUrl}>
                 <button className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: '#E76D38' }}>
                   View Deal
                   <ExternalLink className="h-3.5 w-3.5" />
                 </button>
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -205,12 +208,12 @@ export function DealCard({ deal, hotel, isBlurred = false, variant = "grid" }: D
               </button>
             </Link>
           ) : (
-            <a href={bookingUrl} target="_blank" rel="noopener noreferrer sponsored" className="block">
+            <Link href={bookingUrl} className="block">
               <button className="w-full flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: '#E76D38' }}>
                 View Deal
                 <ExternalLink className="h-3.5 w-3.5" />
               </button>
-            </a>
+            </Link>
           )}
         </div>
       </div>

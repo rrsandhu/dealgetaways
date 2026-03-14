@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, ExternalLink, Star, ShieldCheck } from "lucide-react";
 import type { DbDeal, DbHotel, DbCity } from "@/types";
 import { formatCurrency, cn } from "@/lib/utils";
-import { buildBookingUrl } from "@/lib/utm";
 
 interface DestinationCarouselProps {
   title: string;
@@ -50,7 +49,10 @@ export function DestinationCarousel({ title, subtitle, deals, citySlug }: Destin
 
       <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory">
         {deals.map((deal) => {
-          const bookingUrl = buildBookingUrl(deal.booking_url ?? "#");
+          const liteApiParams = new URLSearchParams({ aiSearch: deal.hotel?.name ?? "", adults: "2" });
+          if (deal.check_in_date) liteApiParams.set("checkin", deal.check_in_date);
+          if (deal.check_out_date) liteApiParams.set("checkout", deal.check_out_date);
+          const bookingUrl = `/hotels?${liteApiParams.toString()}`;
           const savingsPct = Math.round(deal.savings_percent);
           return (
             <div key={deal.id} className="w-56 sm:w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
@@ -91,11 +93,11 @@ export function DestinationCarousel({ title, subtitle, deals, citySlug }: Destin
                     </div>
                     <p className="text-xs text-gray-500">/ night</p>
                   </div>
-                  <a href={bookingUrl} target="_blank" rel="noopener noreferrer sponsored">
+                  <Link href={bookingUrl}>
                     <button className="flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: '#E76D38' }}>
                       View<ExternalLink className="h-2.5 w-2.5" />
                     </button>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

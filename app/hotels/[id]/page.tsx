@@ -21,7 +21,6 @@ import {
   getPriceHistory,
 } from "@/lib/supabase/queries";
 import { formatCurrency, formatDate, isExpiringSoon, cn } from "@/lib/utils";
-import { buildBookingUrl } from "@/lib/utm";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -52,7 +51,11 @@ export default async function HotelDetailPage({ params }: PageProps) {
 
   const bestDeal = deals[0];
   const expiringSoon = bestDeal ? isExpiringSoon(bestDeal.expires_at) : false;
-  const bookingUrl = buildBookingUrl(bestDeal?.booking_url ?? "#");
+  // Build a LiteAPI search URL for this hotel
+  const liteApiParams = new URLSearchParams({ aiSearch: hotel.name, adults: "2" });
+  if (bestDeal?.check_in_date) liteApiParams.set("checkin", bestDeal.check_in_date);
+  if (bestDeal?.check_out_date) liteApiParams.set("checkout", bestDeal.check_out_date);
+  const bookingUrl = `/hotels?${liteApiParams.toString()}`;
 
   // JSON-LD
   const jsonLd = {
@@ -258,16 +261,12 @@ export default async function HotelDetailPage({ params }: PageProps) {
                             Save {Math.round(deal.savings_percent)}%
                           </div>
                         </div>
-                        <a
-                          href={buildBookingUrl(deal.booking_url ?? "#")}
-                          target="_blank"
-                          rel="noopener noreferrer sponsored"
-                        >
-                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shrink-0">
-                            Book
+                        <Link href={`/hotels?${new URLSearchParams({ aiSearch: hotel.name, adults: "2", ...(deal.check_in_date && { checkin: deal.check_in_date }), ...(deal.check_out_date && { checkout: deal.check_out_date }) })}`}>
+                          <Button size="sm" className="bg-[#E76D38] hover:bg-[#c45a2a] shrink-0">
+                            View Deal
                             <ExternalLink className="h-3.5 w-3.5" />
                           </Button>
-                        </a>
+                        </Link>
                       </div>
                     ))}
                   </div>
@@ -384,20 +383,15 @@ export default async function HotelDetailPage({ params }: PageProps) {
                       </div>
                     )}
 
-                    <a
-                      href={bookingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer sponsored"
-                      className="mt-5 block"
-                    >
+                    <Link href={bookingUrl} className="mt-5 block">
                       <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700"
+                        className="w-full bg-[#E76D38] hover:bg-[#c45a2a]"
                         size="lg"
                       >
                         View Deal
                         <ExternalLink className="h-4 w-4" />
                       </Button>
-                    </a>
+                    </Link>
 
                     <p className="mt-2 text-center text-xs text-gray-400">
                       Opens on {bestDeal.source ?? "booking site"}
