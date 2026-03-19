@@ -116,13 +116,24 @@ export async function searchRates(params: RatesParams): Promise<{
         rates: (rt.rates ?? []).map((r) => ({ ...r, offerId: rt.offerId })),
       }));
 
+      // LiteAPI returns camelCase for AI-search hotels[] but may use snake_case in hotelData
+      const starRating =
+        (meta.starRating as number) ??
+        (meta.star_rating as number) ??
+        undefined;
+      const rating =
+        (meta.rating as number) ??
+        (meta.rating_average as number) ??
+        (meta.review_score as number) ??
+        undefined;
+
       return {
         hotelId: item.hotelId as string,
         name: (meta.name as string) ?? undefined,
         main_photo: (meta.main_photo as string) ?? undefined,
         address: (meta.address as string) ?? undefined,
-        rating: (meta.rating as number) ?? undefined,
-        starRating: (meta.starRating as number) ?? undefined,
+        rating,
+        starRating,
         tags: (meta.tags as string[]) ?? [],
         story: (meta.story as string) ?? undefined,
         persona: (meta.persona as string) ?? undefined,

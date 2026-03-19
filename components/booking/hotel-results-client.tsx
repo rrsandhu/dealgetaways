@@ -126,7 +126,8 @@ function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }:
       { label: `Under ${fmtPrice(step, currency)}`, max: step },
       { label: `${fmtPrice(step, currency)} – ${fmtPrice(step * 2, currency)}`, max: step * 2 },
       { label: `${fmtPrice(step * 2, currency)} – ${fmtPrice(step * 3, currency)}`, max: step * 3 },
-      { label: `${fmtPrice(step * 3, currency)}+`, max: 0 },
+      // Use 999999 for "no upper limit" — 0 is reserved for "any price" in FilterState
+      { label: `${fmtPrice(step * 3, currency)}+`, max: 999999 },
     ];
   }, [maxPriceInData, currency]);
 
@@ -346,7 +347,7 @@ export function HotelResultsClient({ placeId, destination, aiSearch, checkin, ch
     <div className="flex gap-6 items-start">
 
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden lg:block w-64 shrink-0 sticky top-24 bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+      <aside className="hidden lg:block w-64 shrink-0 sticky top-24 bg-white rounded-2xl border border-gray-200 p-5 shadow-sm overflow-y-auto max-h-[calc(100vh-7rem)]">
         <FilterSidebar
           filters={filters}
           onChange={handleFilterChange}
