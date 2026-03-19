@@ -89,16 +89,16 @@ function SkeletonCard() {
 // ── Filter sidebar ────────────────────────────────────────────────────────────
 interface FilterState {
   sortBy: "price" | "rating" | "reviews";
-  stars: number[];
   minRating: number;
-  maxPrice: number;
+  minPrice: number; // 0 = no lower bound
+  maxPrice: number; // 0 = no upper bound
   refundableOnly: boolean;
 }
 
 const defaultFilters: FilterState = {
   sortBy: "price",
-  stars: [],
   minRating: 0,
+  minPrice: 0,
   maxPrice: 0,
   refundableOnly: false,
 };
@@ -112,24 +112,27 @@ interface SidebarProps {
 }
 
 function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }: SidebarProps) {
-  function toggleStar(s: number) {
-    const next = filters.stars.includes(s)
-      ? filters.stars.filter((x) => x !== s)
-      : [...filters.stars, s];
-    onChange({ ...filters, stars: next });
-  }
-
+  // Build price buckets with explicit min+max per bucket
   const priceBuckets = useMemo(() => {
     if (maxPriceInData <= 0) return [];
     const step = Math.ceil(maxPriceInData / 4 / 50) * 50;
     return [
-      { label: `Under ${fmtPrice(step, currency)}`, max: step },
-      { label: `${fmtPrice(step, currency)} – ${fmtPrice(step * 2, currency)}`, max: step * 2 },
-      { label: `${fmtPrice(step * 2, currency)} – ${fmtPrice(step * 3, currency)}`, max: step * 3 },
-      // Use 999999 for "no upper limit" — 0 is reserved for "any price" in FilterState
-      { label: `${fmtPrice(step * 3, currency)}+`, max: 999999 },
+      { label: `Under ${fmtPrice(step, currency)}`,                                         min: 0,          max: step },
+      { label: `${fmtPrice(step, currency)} – ${fmtPrice(step * 2, currency)}`,             min: step,       max: step * 2 },
+      { label: `${fmtPrice(step * 2, currency)} – ${fmtPrice(step * 3, currency)}`,         min: step * 2,   max: step * 3 },
+      { label: `${fmtPrice(step * 3, currency)}+`,                                          min: step * 3,   max: 0 },
     ];
   }, [maxPriceInData, currency]);
+
+  const isAnyPrice = filters.minPrice === 0 && filters.maxPrice === 0;
+
+  function selectBucket(min: number, max: number) {
+    onChange({ ...filters, minPrice: min, maxPrice: max });
+  }
+
+  function isBucketSelected(min: number, max: number) {
+    return filters.minPrice === min && filters.maxPrice === max;
+  }
 
   return (
     <div className="space-y-5 text-sm">
@@ -151,7 +154,7 @@ function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }:
       <div>
         <p className="font-semibold text-gray-700 mb-2">Sort by</p>
         <div className="space-y-2">
-          {(["price", "rating", "reviews"] as const).map((opt) => (
+          {(["price", "rating"] as const).map((opt) => (
             <label key={opt} className="flex items-center gap-2.5 cursor-pointer group">
               <input
                 type="radio"
@@ -161,7 +164,7 @@ function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }:
                 className="accent-[#2F7C9C] w-4 h-4"
               />
               <span className={`text-sm ${filters.sortBy === opt ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>
-                {opt === "price" ? "Lowest price" : opt === "rating" ? "Guest rating" : "Most reviewed"}
+                {opt === "price" ? "Lowest price" : "Guest rating"}
               </span>
             </label>
           ))}
@@ -179,23 +182,27 @@ function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }:
               <label className="flex items-center gap-2.5 cursor-pointer group">
                 <input
                   type="radio"
-                  name="maxPrice"
-                  checked={filters.maxPrice === 0}
-                  onChange={() => onChange({ ...filters, maxPrice: 0 })}
+                  name="priceRange"
+                  checked={isAnyPrice}
+                  onChange={() => onChange({ ...filters, minPrice: 0, maxPrice: 0 })}
                   className="accent-[#2F7C9C] w-4 h-4"
                 />
-                <span className={`text-sm ${filters.maxPrice === 0 ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>Any price</span>
+                <span className={`text-sm ${isAnyPrice ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>
+                  Any price
+                </span>
               </label>
               {priceBuckets.map((b) => (
                 <label key={b.label} className="flex items-center gap-2.5 cursor-pointer group">
                   <input
                     type="radio"
-                    name="maxPrice"
-                    checked={filters.maxPrice === b.max && b.max > 0}
-                    onChange={() => onChange({ ...filters, maxPrice: b.max })}
+                    name="priceRange"
+                    checked={isBucketSelected(b.min, b.max)}
+                    onChange={() => selectBucket(b.min, b.max)}
                     className="accent-[#2F7C9C] w-4 h-4"
                   />
-                  <span className={`text-sm ${filters.maxPrice === b.max && b.max > 0 ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>{b.label}</span>
+                  <span className={`text-sm ${isBucketSelected(b.min, b.max) ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>
+                    {b.label}
+                  </span>
                 </label>
               ))}
             </div>
@@ -203,33 +210,6 @@ function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }:
           <div className="h-px bg-gray-100" />
         </>
       )}
-
-      {/* Star rating */}
-      <div>
-        <p className="font-semibold text-gray-700 mb-2">Star rating</p>
-        <div className="space-y-2">
-          {[5, 4, 3, 2, 1].map((s) => (
-            <label key={s} className="flex items-center gap-2.5 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={filters.stars.includes(s)}
-                onChange={() => toggleStar(s)}
-                className="accent-[#2F7C9C] w-4 h-4 rounded"
-              />
-              <span className="flex items-center gap-0.5">
-                {Array.from({ length: s }).map((_, i) => (
-                  <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
-                ))}
-                {Array.from({ length: 5 - s }).map((_, i) => (
-                  <Star key={`e${i}`} className="h-3 w-3 fill-gray-200 text-gray-200" />
-                ))}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="h-px bg-gray-100" />
 
       {/* Guest rating */}
       <div>
@@ -249,7 +229,9 @@ function FilterSidebar({ filters, onChange, maxPriceInData, currency, onClose }:
                 onChange={() => onChange({ ...filters, minRating: val })}
                 className="accent-[#2F7C9C] w-4 h-4"
               />
-              <span className={`text-sm ${filters.minRating === val ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>{label}</span>
+              <span className={`text-sm ${filters.minRating === val ? "font-semibold text-[#2F7C9C]" : "text-gray-600 group-hover:text-gray-900"}`}>
+                {label}
+              </span>
             </label>
           ))}
         </div>
@@ -319,14 +301,17 @@ export function HotelResultsClient({ placeId, destination, aiSearch, checkin, ch
 
   const filtered = useMemo(() => {
     let list = [...hotels];
-    if (filters.stars.length > 0) {
-      list = list.filter((h) => filters.stars.includes(Math.round(h.starRating ?? 0)));
-    }
     if (filters.minRating > 0) {
       list = list.filter((h) => (h.rating ?? 0) >= filters.minRating);
     }
-    if (filters.maxPrice > 0) {
-      list = list.filter((h) => { const p = getPrice(h); return p !== null && p <= filters.maxPrice; });
+    if (filters.minPrice > 0 || filters.maxPrice > 0) {
+      list = list.filter((h) => {
+        const p = getPrice(h);
+        if (p === null) return false;
+        if (filters.minPrice > 0 && p < filters.minPrice) return false;
+        if (filters.maxPrice > 0 && p > filters.maxPrice) return false;
+        return true;
+      });
     }
     if (filters.refundableOnly) {
       list = list.filter((h) => isRefundable(h));
