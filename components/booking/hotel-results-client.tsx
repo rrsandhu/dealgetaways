@@ -9,7 +9,6 @@ import {
   Sparkles,
   Loader2,
   ShieldCheck,
-  ChevronDown,
   SlidersHorizontal,
 } from "lucide-react";
 import type { HotelRateResult } from "@/lib/liteapi-server";
@@ -92,7 +91,8 @@ export function HotelResultsClient({
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"price" | "rating">("price");
   const [starFilter, setStarFilter] = useState<number>(0); // 0 = any
-  const [showFilters, setShowFilters] = useState(false);
+  // filters always visible
+  const [showFilters] = useState(true);
   const isAI = !!aiSearch;
 
   useEffect(() => {
@@ -180,19 +180,11 @@ export function HotelResultsClient({
             )}
           </div>
 
-          <button
-            onClick={() => setShowFilters((v) => !v)}
-            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-          </button>
         </div>
 
-        {/* Filter panel */}
+        {/* Filter bar — always visible */}
         {showFilters && (
-          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white p-3.5 shadow-sm">
             {/* Sort */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Sort</span>
