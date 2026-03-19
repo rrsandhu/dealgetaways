@@ -18,6 +18,16 @@ export interface DbHotel {
   rating_score: number | null;
   address: string | null;
   review_count: number | null;
+  /** LiteAPI hotel ID — use for /hotel/[source_id] deep links */
+  source_id: string | null;
+  source: string | null;
+  hotel_type: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  pets_allowed: boolean | null;
+  child_allowed: boolean | null;
+  checkin_time: string | null;
+  checkout_time: string | null;
 }
 
 export interface DbDeal {
@@ -36,6 +46,9 @@ export interface DbDeal {
   is_refundable: boolean | null;
   nights: number | null;
   last_scraped_at: string | null;
+  /** True when price is 10%+ below 30-day average (active from mid-April once history accumulates) */
+  is_deal: boolean | null;
+  savings_pct: number | null;
 }
 
 export interface DbPriceHistory {

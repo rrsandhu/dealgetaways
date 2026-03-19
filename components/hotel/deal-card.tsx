@@ -13,11 +13,16 @@ interface DealCardProps {
 
 export function DealCard({ deal, hotel, isBlurred = false, variant = "grid" }: DealCardProps) {
   const expiringSoon = isExpiringSoon(deal.expires_at);
-  // Build a LiteAPI search URL using the hotel name (+ deal dates when available)
-  const liteApiSearchParams = new URLSearchParams({ aiSearch: hotel.name, adults: "2" });
-  if (deal.check_in_date) liteApiSearchParams.set("checkin", deal.check_in_date);
-  if (deal.check_out_date) liteApiSearchParams.set("checkout", deal.check_out_date);
-  const bookingUrl = `/hotels?${liteApiSearchParams.toString()}`;
+  // If we have the LiteAPI hotel ID (source_id), link directly to hotel detail page.
+  // Otherwise fall back to an aiSearch on the hotels page.
+  const bookingUrl = (() => {
+    const params = new URLSearchParams({ adults: "2" });
+    if (deal.check_in_date) params.set("checkin", deal.check_in_date);
+    if (deal.check_out_date) params.set("checkout", deal.check_out_date);
+    if (hotel.source_id) return `/hotel/${hotel.source_id}?${params.toString()}`;
+    params.set("aiSearch", hotel.name);
+    return `/hotels?${params.toString()}`;
+  })();
   const savingsPct = Math.round(deal.savings_percent);
 
   if (variant === "list") {

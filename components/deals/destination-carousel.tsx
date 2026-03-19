@@ -49,10 +49,14 @@ export function DestinationCarousel({ title, subtitle, deals, citySlug }: Destin
 
       <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory">
         {deals.map((deal) => {
-          const liteApiParams = new URLSearchParams({ aiSearch: deal.hotel?.name ?? "", adults: "2" });
-          if (deal.check_in_date) liteApiParams.set("checkin", deal.check_in_date);
-          if (deal.check_out_date) liteApiParams.set("checkout", deal.check_out_date);
-          const bookingUrl = `/hotels?${liteApiParams.toString()}`;
+          const bookingUrl = (() => {
+            const params = new URLSearchParams({ adults: "2" });
+            if (deal.check_in_date) params.set("checkin", deal.check_in_date);
+            if (deal.check_out_date) params.set("checkout", deal.check_out_date);
+            if (deal.hotel?.source_id) return `/hotel/${deal.hotel.source_id}?${params.toString()}`;
+            params.set("aiSearch", deal.hotel?.name ?? "");
+            return `/hotels?${params.toString()}`;
+          })();
           const savingsPct = Math.round(deal.savings_percent);
           return (
             <div key={deal.id} className="w-56 sm:w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">

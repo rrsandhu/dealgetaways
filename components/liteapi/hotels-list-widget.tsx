@@ -13,6 +13,9 @@ interface LiteAPIHotelsListWidgetProps {
   rows?: number;
   className?: string;
   instanceId?: string;
+  checkin?: string;
+  checkout?: string;
+  adults?: number;
 }
 
 export function LiteAPIHotelsListWidget({
@@ -24,6 +27,9 @@ export function LiteAPIHotelsListWidget({
   rows = 10,
   className,
   instanceId = "default",
+  checkin,
+  checkout,
+  adults = 2,
 }: LiteAPIHotelsListWidgetProps) {
   const initialized = useRef(false);
   const containerId = `liteapi-hotels-${instanceId}`;
@@ -40,11 +46,21 @@ export function LiteAPIHotelsListWidget({
       currency,
       hasSearchBar,
       rows,
+      onHotelClick: (hotel: unknown) => {
+        const h = hotel as { hotelId?: string; id?: string };
+        const hotelId = h.hotelId ?? h.id;
+        if (!hotelId) return;
+        const params = new URLSearchParams({ adults: String(adults) });
+        if (checkin) params.set("checkin", checkin);
+        if (checkout) params.set("checkout", checkout);
+        window.location.href = `/hotel/${hotelId}?${params.toString()}`;
+      },
     });
   };
 
   useEffect(() => {
     if (window.LiteAPI) initWidget();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placeId]);
 
   if (!domain) return null;

@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getHotelDetails, searchRates, type HotelDetails, type RoomRate } from "@/lib/liteapi-server";
-import { buildLiteAPIDeepLink } from "@/lib/liteapi";
 
 interface PageProps {
   params: Promise<{ hotelId: string }>;
@@ -366,13 +365,7 @@ async function RoomRatesSection({
                 const isRefundable = rate.cancellationPolicies?.refundableTag === "RFN";
                 const cancelTime = rate.cancellationPolicies?.cancelPolicyInfos?.[0]?.cancelTime;
 
-                const deepLink = buildLiteAPIDeepLink({
-                  hotelId,
-                  checkin,
-                  checkout,
-                  adults,
-                  currency,
-                });
+                const checkoutUrl = `/checkout?offerId=${encodeURIComponent(rate.offerId)}&checkin=${checkin}&checkout=${checkout}&adults=${adults}&hotelId=${hotelId}&hotelName=${encodeURIComponent(hotel.name)}&roomName=${encodeURIComponent(displayName)}&price=${price ?? ""}&currency=${currency}&nights=${nights}`;
 
                 return (
                   <div
@@ -418,16 +411,11 @@ async function RoomRatesSection({
                           <p className="text-sm text-gray-400">Price unavailable</p>
                         )}
                       </div>
-                      <a
-                        href={deepLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <Link href={checkoutUrl}>
                         <Button className="bg-[#E76D38] hover:bg-[#c45a2a] text-white shrink-0">
-                          View Deal
-                          <ExternalLink className="h-4 w-4" />
+                          Select Room
                         </Button>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 );

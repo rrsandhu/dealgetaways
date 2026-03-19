@@ -14,6 +14,9 @@ interface LiteAPIMapWidgetProps {
   className?: string;
   /** Unique suffix to avoid ID collisions if multiple maps on page */
   instanceId?: string;
+  checkin?: string;
+  checkout?: string;
+  adults?: number;
 }
 
 export function LiteAPIMapWidget({
@@ -24,6 +27,9 @@ export function LiteAPIMapWidget({
   height = "500px",
   className,
   instanceId = "default",
+  checkin,
+  checkout,
+  adults = 2,
 }: LiteAPIMapWidgetProps) {
   const initialized = useRef(false);
   const containerId = `liteapi-map-${instanceId}`;
@@ -38,12 +44,22 @@ export function LiteAPIMapWidget({
       placeId,
       primaryColor,
       currency,
-      hideLogo: false,
+      hideLogo: true,
+      onHotelClick: (hotel: unknown) => {
+        const h = hotel as { hotelId?: string; id?: string };
+        const hotelId = h.hotelId ?? h.id;
+        if (!hotelId) return;
+        const params = new URLSearchParams({ adults: String(adults) });
+        if (checkin) params.set("checkin", checkin);
+        if (checkout) params.set("checkout", checkout);
+        window.location.href = `/hotel/${hotelId}?${params.toString()}`;
+      },
     });
   };
 
   useEffect(() => {
     if (window.LiteAPI) initWidget();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placeId]);
 
   if (!domain) return null;

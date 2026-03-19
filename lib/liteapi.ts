@@ -60,9 +60,19 @@ export function buildLiteAPIDeepLink(opts: {
   return `${base}${path}${qs ? `?${qs}` : ""}`;
 }
 
-/** Declare LiteAPI global on window */
+/** Declare LiteAPI globals on window */
 declare global {
   interface Window {
+    /** LiteAPI Payment SDK — loaded via script tag on /checkout */
+    LiteAPIPayment?: new (config: {
+      publicKey: "live" | "sandbox";
+      secretKey: string;
+      returnUrl: string;
+      targetElement: string;
+      appearance?: { theme?: string };
+      options?: { business?: { name?: string } };
+    }) => { handlePayment: () => void };
+
     LiteAPI?: {
       init: (config: { domain: string }) => void;
       SearchBar: {

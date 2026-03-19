@@ -25,7 +25,7 @@ export default async function HotelsPage({ searchParams: searchParamsProp }: Pag
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Search header */}
-      <div className="bg-gradient-to-br from-slate-800 to-[#1f5a73] py-8 px-4">
+      <div className="border-b border-gray-200 bg-white py-4 px-4 shadow-sm">
         <div className="mx-auto max-w-5xl">
           <HotelSearchForm
             variant="compact"

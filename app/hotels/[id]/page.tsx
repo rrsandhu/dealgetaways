@@ -51,11 +51,15 @@ export default async function HotelDetailPage({ params }: PageProps) {
 
   const bestDeal = deals[0];
   const expiringSoon = bestDeal ? isExpiringSoon(bestDeal.expires_at) : false;
-  // Build a LiteAPI search URL for this hotel
-  const liteApiParams = new URLSearchParams({ aiSearch: hotel.name, adults: "2" });
-  if (bestDeal?.check_in_date) liteApiParams.set("checkin", bestDeal.check_in_date);
-  if (bestDeal?.check_out_date) liteApiParams.set("checkout", bestDeal.check_out_date);
-  const bookingUrl = `/hotels?${liteApiParams.toString()}`;
+  // Link directly to hotel detail page using LiteAPI source_id, fall back to aiSearch
+  const bookingUrl = (() => {
+    const params = new URLSearchParams({ adults: "2" });
+    if (bestDeal?.check_in_date) params.set("checkin", bestDeal.check_in_date);
+    if (bestDeal?.check_out_date) params.set("checkout", bestDeal.check_out_date);
+    if (hotel.source_id) return `/hotel/${hotel.source_id}?${params.toString()}`;
+    params.set("aiSearch", hotel.name);
+    return `/hotels?${params.toString()}`;
+  })();
 
   // JSON-LD
   const jsonLd = {
@@ -261,7 +265,12 @@ export default async function HotelDetailPage({ params }: PageProps) {
                             Save {Math.round(deal.savings_percent)}%
                           </div>
                         </div>
-                        <Link href={`/hotels?${new URLSearchParams({ aiSearch: hotel.name, adults: "2", ...(deal.check_in_date && { checkin: deal.check_in_date }), ...(deal.check_out_date && { checkout: deal.check_out_date }) })}`}>
+                        <Link href={(() => {
+                          const p = new URLSearchParams({ adults: "2" });
+                          if (deal.check_in_date) p.set("checkin", deal.check_in_date);
+                          if (deal.check_out_date) p.set("checkout", deal.check_out_date);
+                          return hotel.source_id ? `/hotel/${hotel.source_id}?${p}` : `/hotels?${p}&aiSearch=${encodeURIComponent(hotel.name)}`;
+                        })()}>
                           <Button size="sm" className="bg-[#E76D38] hover:bg-[#c45a2a] shrink-0">
                             View Deal
                             <ExternalLink className="h-3.5 w-3.5" />
